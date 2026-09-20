@@ -5,7 +5,7 @@ nixPkgs = ["python311"]
 cmds = ["pip install -r requirements.txt"]
 
 [phases.start]
-cmd = "python sp.py"
+cmd = "python api.py"
 
 [[phases.start.outputs]]
 directories = ["."]
