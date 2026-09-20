@@ -22,4 +22,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Run the application
-CMD ["python", "sp.py"]
+CMD ["python", "api.py"]
