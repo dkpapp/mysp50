@@ -943,4 +943,4 @@ if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     logger.info(f"Starting Highly Optimized ASGI Server on port {port}")
     uvicorn.run("api:app", host='0.0.0.0', port=port, log_level="info", access_log=False)
-```eof
+#```eof
