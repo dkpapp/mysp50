@@ -630,7 +630,7 @@ class CheckoutSession:
                 if rt:
                     self.running_total = rt['value']['amount']
        except Exception:
-           pass
+            pass
         return True, "OK"
 
     async def _tokenize_card(self, session):
