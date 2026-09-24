@@ -629,9 +629,9 @@ class CheckoutSession:
                 rt = r2_res.get('sellerProposal', {}).get('runningTotal')
                 if rt:
                     self.running_total = rt['value']['amount']
-       except Exception:
+        except Exception:
             pass
-       return True, "OK"
+        return True, "OK"
 
     async def _tokenize_card(self, session):
         payload = {
