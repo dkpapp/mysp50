@@ -632,6 +632,21 @@ class CheckoutSession:
                 rt = r2_res.get('sellerProposal', {}).get('runningTotal')
                 if rt:
                     self.running_total = rt['value']['amount']
+                
+                # CRITICAL FIX: Re-extract delivery strategy. For low-priced items, 
+                # the shipping handle often changes here (e.g., losing free shipping)
+                seller_proposal = r2_res.get('sellerProposal', {})
+                delivery_data = seller_proposal.get('delivery', {})
+                if delivery_data.get('__typename') == 'FilledDeliveryTerms':
+                    delivery_lines = delivery_data.get('deliveryLines', [])
+                    if delivery_lines:
+                        selected = delivery_lines[0].get('selectedDeliveryStrategy', {})
+                        if selected and selected.get('handle'):
+                            self.delivery_strategy = selected.get('handle')
+                        else:
+                            avail = delivery_lines[0].get('availableDeliveryStrategies', [])
+                            if avail:
+                                self.delivery_strategy = avail[0].get('handle', '')
         except Exception:
             pass
         return True, "OK"
