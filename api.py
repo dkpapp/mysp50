@@ -843,7 +843,7 @@ class CheckoutSession:
         if not resp:
             return False, f"Sync request failed: {text}"
 
-                try:
+        try:
             sync_res = json.loads(text)
 
             # Surface any top-level GraphQL errors
