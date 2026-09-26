@@ -388,8 +388,8 @@ class CheckoutSession:
             self.currency = extract_between(text, 'currencyCode&quot;:&quot;', '&quot;') or 'USD'
         elif '"currencyCode":"' in text:
             self.currency = extract_between(text, '"currencyCode":"', '"') or 'USD'
-        print(f"[DEBUG_START] self.price_raw = {self.price_raw}")
-        print(f"[DEBUG_START] product_data.get('price') = {product_data.get('price') if 'product_data' in locals() else 'N/A'}")
+        logger.info(f"[DEBUG_START] self.price_raw = {self.price_raw}")
+        logger.info(f"[DEBUG_START] product_data.get('price') = {product_data.get('price') if 'product_data' in locals() else 'N/A'}")
             
         subtotal = extract_between(text, 'subtotalBeforeTaxesAndShipping&quot;:{&quot;value&quot;:{&quot;amount&quot;:&quot;', '&quot;') or \
                    extract_between(text, '"subtotalBeforeTaxesAndShipping":{"value":{"amount":"', '"')
