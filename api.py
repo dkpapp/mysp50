@@ -941,6 +941,17 @@ class CheckoutSession:
             # reuse them byte-for-byte.
             self.last_sync_payload = sync_json
             self.last_sync_seller_proposal = sp
+                        # --- DIAGNOSTIC: log the SERVER's view of the confirmed line ---
+            try:
+                d_lines_resp = sp.get('delivery', {}).get('deliveryLines', [])
+                if d_lines_resp:
+                    logger.warning(
+                        "SYNC RESPONSE delivery line = %s",
+                        json.dumps(d_lines_resp[0], sort_keys=True, default=str),
+                    )
+            except Exception:
+                pass
+            # --- END DIAGNOSTIC ---
             return True, "OK"
         except Exception as e:
             return False, f"Sync parse error: {str(e)}"
