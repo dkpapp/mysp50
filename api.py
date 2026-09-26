@@ -1053,7 +1053,7 @@ class CheckoutSession:
             if self.delivery_strategy:
                 _dl.setdefault('selectedDeliveryStrategy', {}).setdefault(
                     'deliveryStrategyByHandle', {})['handle'] = self.delivery_strategy
-            dl.pop('destination', None)
+            _dl.pop('destination', None)
 
         # Update the payment amount to match the server's latest running total,
         # and inject the fresh session token.
