@@ -647,8 +647,7 @@ class CheckoutSession:
                 }
             }
             dl['selectedDeliveryStrategy'] = {
-                'deliveryStrategyByHandle': {'handle': self.delivery_strategy, 'customDeliveryRate': False},
-                'options': {'phone': self.phone}
+                'deliveryStrategyByHandle': {'handle': self.delivery_strategy, 'customDeliveryRate': False}
             }
             dl['targetMerchandiseLines'] = {'any': True}
             dl['expectedTotalPrice'] = {'any': True}
@@ -769,8 +768,7 @@ class CheckoutSession:
                             'deliveryStrategyByHandle': {
                                 'handle': self.delivery_strategy,
                                 'customDeliveryRate': False
-                            },
-                            'options': {'phone': self.phone}
+                            }
                         },
                         'targetMerchandiseLines': {'any': True},
                         'deliveryMethodTypes': ['SHIPPING'],
