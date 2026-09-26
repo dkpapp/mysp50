@@ -445,14 +445,7 @@ class CheckoutSession:
         # checkpointData and all prices reflect the server's CURRENT state.
         # Without this, low-priced carts trigger MERCHANDISE_EXPECTED_PRICE_MISMATCH
         # and DELIVERY_DELIVERY_LINE_DETAIL_CHANGED.
-        sync_ok, sync_msg = await self._sync_final_proposal(session, graphql_url)
-        if not sync_ok:
-            # One retry — Throttled is common on the first attempt for low-priced carts
-            await asyncio.sleep(2)
-            sync_ok, sync_msg = await self._sync_final_proposal(session, graphql_url)
-        if not sync_ok:
-            return False, sync_msg, self.gateway, self.total_price, self.currency
-
+        
         s_ok, s_status, rid = await self._submit_payment(session, graphql_url, token_or_err, subtotal)
         if not s_ok: return False, s_status, self.gateway, self.total_price, self.currency
         if s_status != "POLL": return True, s_status, self.gateway, self.total_price, self.currency
