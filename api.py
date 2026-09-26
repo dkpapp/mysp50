@@ -539,6 +539,12 @@ class CheckoutSession:
             'operationName': 'Proposal'
         }
 
+        # Step 1: DEBUG
+        import json as json_lib
+        print(f"[DEBUG_PAYLOAD] Amount in expectedTotalPrice: {base_json['variables']['merchandise']['merchandiseLines'][0]['expectedTotalPrice']['value']['amount']}")
+        print(f"[DEBUG_PAYLOAD] Subtotal was: {subtotal}")
+        print(f"[DEBUG_PAYLOAD] Full expectedTotalPrice object: {json_lib.dumps(base_json['variables']['merchandise']['merchandiseLines'][0]['expectedTotalPrice'], indent=2)}")
+
         # Step 1: Shipping Proposal
         for i in range(2):
             resp, text = await make_graphql_request_with_captcha_handling(
