@@ -117,12 +117,120 @@ class Utils:
         domains = ["gmail.com", "yahoo.com", "outlook.com", "protonmail.com"]
         return f"{first.lower()}.{last.lower()}@{random.choice(domains)}"
 
-def parse_proxy(proxy_str):
-    if not proxy_str: return None
-    parts = proxy_str.split(':')
-    if len(parts) == 2: return f"http://{parts[0]}:{parts[1]}"
-    elif len(parts) == 4: return f"http://{parts[2]}:{parts[3]}@{parts[0]}:{parts[1]}"
-    return None
+_VALID_SCHEMES = frozenset({
+    "http", "https", "socks4", "socks4a", "socks5", "socks5h"
+})
+
+def parse_proxy(proxy_str: str) -> Optional[str]:
+    """
+    Parses proxy strings into RFC-compliant URIs.
+    FIXED: Handles colons in passwords, prevents double-encoding (407 fix), 
+    and strictly validates port positions.
+    """
+    if not isinstance(proxy_str, str):
+        return None
+
+    proxy_str = proxy_str.strip()
+    if not proxy_str:
+        return None
+
+    scheme = "http"
+    user = None
+    password = None
+    host = None
+    port_str = None
+
+    # 1. Scheme present
+    if "://" in proxy_str:
+        raw_scheme, _, rest = proxy_str.partition("://")
+        scheme = raw_scheme.lower()
+        if scheme not in _VALID_SCHEMES:
+            return None
+
+        if "@" in rest:
+            creds, _, address = rest.rpartition("@")
+            if ":" in creds:
+                user, _, password = creds.partition(":")
+            else:
+                user = creds
+        else:
+            address = rest
+
+        if ":" in address:
+            host, _, port_str = address.rpartition(":")
+        else:
+            host = address
+            port_str = "443" if scheme == "https" else "80"
+
+    # 2. USER:PASS@HOST:PORT
+    elif "@" in proxy_str:
+        creds, _, address = proxy_str.rpartition("@")
+        if ":" not in address:
+            return None
+
+        if ":" in creds:
+            user, _, password = creds.partition(":")
+        else:
+            user = creds
+
+        host, _, port_str = address.rpartition(":")
+
+    # 3. Plain delimiters (HOST:PORT or 4-part split combinations)
+    else:
+        parts = proxy_str.split(":")
+        num_parts = len(parts)
+
+        if num_parts == 2:
+            host, port_str = parts
+        elif num_parts >= 4:
+            def is_port(p: str) -> bool:
+                return p.isdigit() and 1 <= int(p) <= 65535
+
+            # Handle colons in passwords by merging remaining parts
+            if is_port(parts[1]):
+                # host:port:user:pass
+                host, port_str = parts[0], parts[1]
+                user = parts[2]
+                password = ":".join(parts[3:])
+            elif is_port(parts[-1]):
+                # user:pass:host:port
+                user = parts[0]
+                password = ":".join(parts[1:-2])
+                host = parts[-2]
+                port_str = parts[-1]
+            elif is_port(parts[-2]):
+                # user:pass:port:host
+                user = parts[0]
+                password = ":".join(parts[1:-2])
+                port_str = parts[-2]
+                host = parts[-1]
+            else:
+                return None
+        else:
+            return None
+
+    # Validate extracted Host and Port
+    if not host or not port_str or not port_str.isdigit():
+        return None
+
+    port = int(port_str)
+    if not (1 <= port <= 65535):
+        return None
+
+    host = host.strip("[]").strip()
+
+    # Clean credentials & safely encode once
+    if user:
+        # unquote() first to prevent double-encoding already encoded special characters
+        user = unquote(user.strip())
+        q_user = quote(user, safe="")
+        if password:
+            password = unquote(password.strip())
+            q_pwd = quote(password, safe="")
+            return f"{scheme}://{q_user}:{q_pwd}@{host}:{port}"
+        return f"{scheme}://{q_user}@{host}:{port}"
+
+    return f"{scheme}://{host}:{port}"
 
 def is_captcha_required(response_text):
     if not response_text: return False
