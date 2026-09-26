@@ -562,6 +562,8 @@ class CheckoutSession:
 
         if 'errors' in resp_json:
             error_msgs = [e.get('message', str(e)) for e in resp_json.get('errors', [])[:3]]
+            error_full = json_lib.dumps(resp_json.get('errors', [])[:1], indent=2)
+            logger.info(f"[DEBUG_ERROR_FULL] Full error object:\n{error_full}")
             return False, f"GraphQL Error: {'; '.join(error_msgs)}"
 
         try:
